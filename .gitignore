@@ -1,0 +1,4 @@
+.env
+.inbox_processing.lock
+watch_inbox.log
+inbox/combined.jpg
