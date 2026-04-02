@@ -202,10 +202,9 @@ def generate_id(artist: str, albums: list) -> str:
 
 
 def find_data_line(lines: list) -> int:
-    """Return the 0-based index of the albums JSON array line."""
+    """Return the 0-based index of the line containing the albums JSON array."""
     for i, line in enumerate(lines):
-        stripped = line.strip()
-        if stripped.startswith('[') and '"artist"' in stripped and '"id"' in stripped:
+        if '"artist"' in line and '"id"' in line and len(line) > 500:
             return i
     raise RuntimeError("Could not locate albums JSON array in index.html")
 
