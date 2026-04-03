@@ -817,7 +817,7 @@ function shareOnX(artist, album, catalog, imageUrl) {
     overlay.classList.add('active');
     okBtn.onclick = () => {
         overlay.classList.remove('active');
-        const text = catalog ? `${artist} - ${album} [${catalog}]` : `${artist} - ${album}`;
+        const text = `${artist} - ${album}`;
         openSearch(`https://x.com/intent/tweet?text=${encodeURIComponent(text)}`);
     };
 }
