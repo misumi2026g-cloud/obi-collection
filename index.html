@@ -326,6 +326,12 @@ body {
 .action-btn.whosampled:hover { background: #CC8C00; transform: translateY(-2px); }
 .action-btn.x-share { background: #000000; border-color: #000000; color: var(--white); }
 .action-btn.x-share:hover { background: #333333; transform: translateY(-2px); }
+.x-share-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 3000; background: rgba(0,0,0,0.96); flex-direction: column; align-items: center; justify-content: center; padding: 1.5rem; gap: 1.2rem; }
+.x-share-overlay.active { display: flex; }
+.x-share-overlay img { max-width: 100%; max-height: 60vh; object-fit: contain; border-radius: 8px; border: 3px solid var(--gold-primary); box-shadow: var(--shadow-lg); }
+.x-share-overlay p { color: var(--off-white); font-family: var(--font-body); font-size: 1.1rem; text-align: center; margin: 0; }
+.x-share-ok-btn { background: #000; border: 2px solid var(--white); color: var(--white); font-family: var(--font-heading); font-size: 1rem; font-weight: 700; padding: 0.75rem 2.5rem; border-radius: 4px; cursor: pointer; transition: background 0.2s; }
+.x-share-ok-btn:hover { background: #333; }
 
 ::-webkit-scrollbar { width: 12px; }
 ::-webkit-scrollbar-track { background: var(--black); }
@@ -429,6 +435,12 @@ body {
             <p>No CDs found</p>
         </div>
     </main>
+
+    <div class="x-share-overlay" id="xShareOverlay">
+        <img id="xShareImage" src="" alt="">
+        <p>長押しして画像を保存してください</p>
+        <button class="x-share-ok-btn" id="xShareOkBtn">OK</button>
+    </div>
 
     <div class="modal" id="albumModal">
         <div class="modal-overlay" id="modalOverlay"></div>
@@ -709,6 +721,7 @@ function showAlbumModal(album) {
         const artist = album.artist.replace(/'/g, "\\'");
         const albumTitle = album.album.replace(/'/g, "\\'");
         const catalogNo = (version.catalog || '').replace(/'/g, "\\'");
+        const imageUrl = version.image.replace(/'/g, "\\'");
         versionsHTML += `
             <div class="version-section ${index > 0 ? 'version-divider' : ''}">
                 <div class="version-content">
@@ -728,7 +741,7 @@ function showAlbumModal(album) {
                         <button class="action-btn discogs" onclick="searchOnDiscogs('${artist}','${albumTitle}')"><i class="fas fa-record-vinyl"></i> Discogs</button>
                         <button class="action-btn genius" onclick="searchOnGenius('${artist}','${albumTitle}')"><i class="fas fa-music"></i> Genius</button>
                         <button class="action-btn whosampled" onclick="searchOnWhoSampled('${artist}')"><i class="fas fa-headphones"></i> WhoSampled</button>
-                        <button class="action-btn x-share" onclick="shareOnX('${artist}','${albumTitle}','${catalogNo}')"><i class="fab fa-x-twitter"></i> Post</button>
+                        <button class="action-btn x-share" onclick="shareOnX('${artist}','${albumTitle}','${catalogNo}','${imageUrl}')"><i class="fab fa-x-twitter"></i> Post</button>
                     </div>
                     <div class="action-buttons">
                         <button class="action-btn mercari" onclick="searchOnMercari('${artist}','${albumTitle}')"><i class="fas fa-tag"></i> Mercari</button>
@@ -796,9 +809,17 @@ function searchOnYahooAuction(artist, album) {
     openSearch(`https://auctions.yahoo.co.jp/search/search?p=${q}`);
 }
 function searchOnWhoSampled(artist) { openSearch(`https://www.whosampled.com/search/?q=${encodeURIComponent(artist)}`); }
-function shareOnX(artist, album, catalog) {
-    const text = catalog ? `${artist} - ${album} [${catalog}]` : `${artist} - ${album}`;
-    openSearch(`https://x.com/intent/tweet?text=${encodeURIComponent(text)}`);
+function shareOnX(artist, album, catalog, imageUrl) {
+    const overlay = document.getElementById('xShareOverlay');
+    const img = document.getElementById('xShareImage');
+    const okBtn = document.getElementById('xShareOkBtn');
+    img.src = imageUrl;
+    overlay.classList.add('active');
+    okBtn.onclick = () => {
+        overlay.classList.remove('active');
+        const text = catalog ? `${artist} - ${album} [${catalog}]` : `${artist} - ${album}`;
+        openSearch(`https://x.com/intent/tweet?text=${encodeURIComponent(text)}`);
+    };
 }
 
 function showLoading(show) { loadingSpinner.style.display = show ? 'block' : 'none'; }
