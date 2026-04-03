@@ -285,7 +285,7 @@ def main():
 
     try:
         if combined_only:
-            log("Step 1/5 — combined.jpg found; skipping image combination.")
+            log("Step 1/5 — c.jpg found; skipping image combination.")
             info_source = combined_path
         else:
             # 1. Combine images

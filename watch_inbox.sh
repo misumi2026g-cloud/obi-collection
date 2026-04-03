@@ -64,7 +64,7 @@ log "    Watching: $INBOX"
 log "    Script:   $SCRIPT_DIR/process_inbox.py"
 
 while true; do
-    if [[ -f "$INBOX/obi.jpg" && -f "$INBOX/jacket.jpg" ]]; then
+    if [[ -f "$INBOX/a.jpg" && -f "$INBOX/b.jpg" ]] || [[ -f "$INBOX/c.jpg" ]]; then
 
         # Skip if another instance is already running
         if [[ -f "$LOCK" ]]; then
@@ -72,20 +72,39 @@ while true; do
             continue
         fi
 
-        # Wait for both files to finish being written
-        if file_is_stable "$INBOX/obi.jpg" && file_is_stable "$INBOX/jacket.jpg"; then
-            touch "$LOCK"
-            log "Found obi.jpg + jacket.jpg — starting process_inbox.py..."
+        # Wait for files to finish being written
+        if [[ -f "$INBOX/c.jpg" && ! -f "$INBOX/a.jpg" && ! -f "$INBOX/b.jpg" ]]; then
+            # c.jpg only mode
+            if file_is_stable "$INBOX/c.jpg"; then
+                touch "$LOCK"
+                log "Found c.jpg — starting process_inbox.py..."
 
-            python3 "$SCRIPT_DIR/process_inbox.py" >> "$LOG" 2>&1
-            EXIT_CODE=$?
+                python3 "$SCRIPT_DIR/process_inbox.py" >> "$LOG" 2>&1
+                EXIT_CODE=$?
 
-            rm -f "$LOCK"
+                rm -f "$LOCK"
 
-            if [[ $EXIT_CODE -eq 0 ]]; then
-                log "Done ✓"
-            else
-                log "process_inbox.py exited with code $EXIT_CODE — see log above"
+                if [[ $EXIT_CODE -eq 0 ]]; then
+                    log "Done ✓"
+                else
+                    log "process_inbox.py exited with code $EXIT_CODE — see log above"
+                fi
+            fi
+        elif [[ -f "$INBOX/a.jpg" && -f "$INBOX/b.jpg" ]]; then
+            if file_is_stable "$INBOX/a.jpg" && file_is_stable "$INBOX/b.jpg"; then
+                touch "$LOCK"
+                log "Found a.jpg + b.jpg — starting process_inbox.py..."
+
+                python3 "$SCRIPT_DIR/process_inbox.py" >> "$LOG" 2>&1
+                EXIT_CODE=$?
+
+                rm -f "$LOCK"
+
+                if [[ $EXIT_CODE -eq 0 ]]; then
+                    log "Done ✓"
+                else
+                    log "process_inbox.py exited with code $EXIT_CODE — see log above"
+                fi
             fi
         fi
     fi

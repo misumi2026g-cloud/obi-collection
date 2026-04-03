@@ -81,17 +81,33 @@ def main():
     log(f"    Python:  {sys.executable}")
 
     while True:
-        obi = INBOX / "obi.jpg"
-        jacket = INBOX / "jacket.jpg"
+        a = INBOX / "a.jpg"
+        b = INBOX / "b.jpg"
+        c = INBOX / "c.jpg"
 
-        if obi.exists() and jacket.exists():
+        combined_only = c.exists() and not a.exists() and not b.exists()
+        normal_mode = a.exists() and b.exists()
+
+        if combined_only or normal_mode:
             if LOCK_FILE.exists():
                 # Another instance is processing — wait
                 time.sleep(POLL_INTERVAL)
                 continue
 
-            if file_is_stable(obi) and file_is_stable(jacket):
-                log("Found obi.jpg + jacket.jpg — starting process_inbox.py...")
+            if combined_only and file_is_stable(c):
+                log("Found c.jpg — starting process_inbox.py...")
+                LOCK_FILE.touch()
+                try:
+                    success = run_process()
+                    if success:
+                        log("Done ✓")
+                    else:
+                        log("process_inbox.py failed — images left in inbox for retry")
+                finally:
+                    LOCK_FILE.unlink(missing_ok=True)
+
+            elif normal_mode and file_is_stable(a) and file_is_stable(b):
+                log("Found a.jpg + b.jpg — starting process_inbox.py...")
                 LOCK_FILE.touch()
                 try:
                     success = run_process()
