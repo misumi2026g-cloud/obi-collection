@@ -360,6 +360,34 @@ body {
 }
 .collection-container.mobile-view { grid-template-columns: repeat(3, 1fr) !important; }
 .collection-container.list-view { grid-template-columns: 1fr !important; }
+#alphaIndexBar {
+    background: var(--dark-gray);
+    border-bottom: 1px solid rgba(212,175,55,0.4);
+    padding: 0.35rem 0.75rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+#alphaIndexBar::-webkit-scrollbar { display: none; }
+.alpha-index-inner { display: flex; gap: 0.2rem; min-width: max-content; }
+.alpha-btn {
+    background: transparent;
+    border: 1px solid var(--gold-primary);
+    color: var(--gold-primary);
+    font-family: var(--font-heading);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.2rem 0.45rem;
+    cursor: pointer;
+    border-radius: 3px;
+    min-width: 1.7rem;
+    text-align: center;
+    transition: background 0.15s, color 0.15s;
+}
+.alpha-btn:hover:not(:disabled) { background: var(--gold-primary); color: var(--black); }
+.alpha-btn:disabled { opacity: 0.2; cursor: default; border-color: var(--silver); color: var(--silver); }
     </style>
 </head>
 <body>
@@ -421,6 +449,9 @@ body {
         </div>
     </header>
 
+    <div id="alphaIndexBar" style="display:none;">
+        <div class="alpha-index-inner" id="alphaIndexInner"></div>
+    </div>
     <main class="main-content">
         <div class="collection-container" id="collectionContainer"></div>
         <div class="view-size-toggle" id="viewSizeToggle">
@@ -606,6 +637,45 @@ function getSortName(artistName) {
     return name;
 }
 
+function updateAlphaBar() {
+    const bar = document.getElementById('alphaIndexBar');
+    const inner = document.getElementById('alphaIndexInner');
+    if (!bar || !inner) return;
+    const showBar = viewSizeMode === 'desktop' && sortSelect.value === 'artist-asc' && !searchInput.value && alphabetSelect.value === '';
+    if (!showBar) { bar.style.display = 'none'; return; }
+    bar.style.display = '';
+    if (!inner.children.length) {
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(letter => {
+            const btn = document.createElement('button');
+            btn.className = 'alpha-btn';
+            btn.textContent = letter;
+            btn.dataset.letter = letter;
+            btn.addEventListener('click', () => {
+                const cards = collectionContainer.querySelectorAll('.album-card');
+                for (const card of cards) {
+                    const name = (card.dataset.sortArtist || '').toUpperCase();
+                    if (name.startsWith(letter)) {
+                        const offset = bar.offsetHeight + 8;
+                        const top = card.getBoundingClientRect().top + window.scrollY - offset;
+                        window.scrollTo({ top, behavior: 'smooth' });
+                        return;
+                    }
+                }
+            });
+            inner.appendChild(btn);
+        });
+    }
+    const cards = collectionContainer.querySelectorAll('.album-card');
+    const presentLetters = new Set();
+    cards.forEach(card => {
+        const initial = (card.dataset.sortArtist || '').toUpperCase().charAt(0);
+        if (initial >= 'A' && initial <= 'Z') presentLetters.add(initial);
+    });
+    inner.querySelectorAll('.alpha-btn').forEach(btn => {
+        btn.disabled = !presentLetters.has(btn.dataset.letter);
+    });
+}
+
 function applyViewSizeLimit() {
     const alphabetFilter = alphabetSelect.value;
     const isTopPage = alphabetFilter === '';
@@ -683,12 +753,14 @@ function renderAlbums() {
     });
     updateResultCount(filteredAlbums.length);
     initLazyLoading();
+    updateAlphaBar();
 }
 
 function createAlbumCard(album, index = null, isPinned = false) {
     const card = document.createElement('div');
     card.className = 'album-card';
     card.dataset.albumId = album.id;
+    card.dataset.sortArtist = getSortName(album.artist);
     if (index !== null) card.dataset.position = index;
     const firstVersion = album.versions[0];
     const versionCount = album.versions.length;
