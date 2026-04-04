@@ -559,6 +559,11 @@ function setupEventListeners() {
     });
     randomBtn.addEventListener('click', () => {
         searchInput.value = '';
+        if (alphabetSelect.value) {
+            applyAlphabetFilter();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
         alphabetSelect.value = '';
         sortSelect.value = 'artist-asc';
         const displayCount = viewSizeMode === 'mobile' ? 9 : allAlbums.length;
