@@ -244,11 +244,15 @@ body {
 .pin-btn.pinned i { transform: rotate(0deg); }
 .album-image { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
 .album-info { display: none; }
-.collection-container.list-view { grid-template-columns: 1fr; gap: 0.5rem; }
-.collection-container.list-view .album-card { display: flex; flex-direction: row; align-items: center; }
-.collection-container.list-view .album-image-container { width: 80px; padding-top: 0; height: 80px; flex-shrink: 0; }
-.collection-container.list-view .album-image { position: static; width: 100%; height: 100%; }
-.collection-container.list-view .album-info { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 0.5rem 0.75rem; }
+.collection-container.list-view { grid-template-columns: 1fr !important; gap: 0.4rem; }
+.collection-container.list-view .album-card { display: flex; flex-direction: row; align-items: center; background: var(--dark-gray); border: 1px solid var(--light-gray); border-radius: 6px; transition: border-color 0.2s ease, background 0.2s ease; }
+.collection-container.list-view .album-card:hover { border-color: var(--gold-muted); background: var(--medium-gray); }
+.collection-container.list-view .album-image-container { width: 90px; padding-top: 0; height: 90px; flex-shrink: 0; border-radius: 4px 0 0 4px; overflow: hidden; }
+.collection-container.list-view .album-image { position: static; width: 100%; height: 100%; object-fit: cover; }
+.collection-container.list-view .album-info { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 0.6rem 0.9rem; min-width: 0; }
+.collection-container.list-view .album-artist { font-size: 0.95rem; margin-bottom: 0.15rem; }
+.collection-container.list-view .album-title { font-size: 0.85rem; margin-bottom: 0.25rem; }
+.collection-container.list-view .album-meta { font-size: 0.75rem; }
 .album-artist { font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700; color: var(--gold-primary); margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 1px; }
 .album-title { font-size: 1rem; color: var(--off-white); margin-bottom: 0.5rem; line-height: 1.3; }
 .album-meta { display: flex; gap: var(--spacing-sm); flex-wrap: wrap; font-size: 0.85rem; color: var(--silver); }
