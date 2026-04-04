@@ -660,9 +660,23 @@ function updateAlphaBar() {
             btn.className = 'alpha-btn';
             btn.textContent = letter;
             btn.dataset.letter = letter;
+            btn.dataset.value = letter;
             btn.addEventListener('click', () => {
                 alphabetSelect.value = (alphabetSelect.value === letter) ? '' : letter;
                 sortSelect.value = 'artist-asc';
+                applyAlphabetFilter();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+            inner.appendChild(btn);
+        });
+        [['COMP', 'compilation'], ['OST', 'soundtrack']].forEach(([label, value]) => {
+            const btn = document.createElement('button');
+            btn.className = 'alpha-btn';
+            btn.textContent = label;
+            btn.dataset.letter = value;
+            btn.dataset.value = value;
+            btn.addEventListener('click', () => {
+                alphabetSelect.value = (alphabetSelect.value === value) ? '' : value;
                 applyAlphabetFilter();
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             });
@@ -678,7 +692,10 @@ function updateAlphaBar() {
     inner.querySelectorAll('.alpha-btn').forEach(btn => {
         const letter = btn.dataset.letter;
         if (letter === '') {
-            btn.classList.toggle('active', activeLetter === '' || !/^[A-Z]$/.test(activeLetter));
+            btn.classList.toggle('active', activeLetter === '');
+            btn.disabled = false;
+        } else if (letter === 'compilation' || letter === 'soundtrack') {
+            btn.classList.toggle('active', letter === activeLetter);
             btn.disabled = false;
         } else {
             btn.disabled = !presentLetters.has(letter);
