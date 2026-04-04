@@ -2,3 +2,4 @@
 .inbox_processing.lock
 watch_inbox.log
 inbox/combined.jpg
+upload_to_cloudinary.py
