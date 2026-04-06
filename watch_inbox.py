@@ -39,7 +39,7 @@ def load_env():
         if not line or line.startswith("#") or "=" not in line:
             continue
         key, _, val = line.partition("=")
-        os.environ.setdefault(key.strip(), val.strip())
+        os.environ[key.strip()] = val.strip()
 
 
 def file_is_stable(path: Path) -> bool:
