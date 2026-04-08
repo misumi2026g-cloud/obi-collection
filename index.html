@@ -656,17 +656,18 @@ function updateAlphaBar() {
     if (!bar || !inner) return;
     bar.style.display = '';
     if (!inner.children.length) {
-        const allBtn = document.createElement('button');
-        allBtn.className = 'alpha-btn';
-        allBtn.textContent = 'ALL';
-        allBtn.dataset.letter = '';
-        allBtn.addEventListener('click', () => {
-            alphabetSelect.value = '';
+        const hashBtn = document.createElement('button');
+        hashBtn.className = 'alpha-btn';
+        hashBtn.textContent = '#';
+        hashBtn.dataset.letter = 'number';
+        hashBtn.dataset.value = 'number';
+        hashBtn.addEventListener('click', () => {
+            alphabetSelect.value = (alphabetSelect.value === 'number') ? '' : 'number';
             sortSelect.value = 'artist-asc';
             applyAlphabetFilter();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
-        inner.appendChild(allBtn);
+        inner.appendChild(hashBtn);
         'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(letter => {
             const btn = document.createElement('button');
             btn.className = 'alpha-btn';
@@ -706,7 +707,7 @@ function updateAlphaBar() {
         if (letter === '') {
             btn.classList.toggle('active', activeLetter === '');
             btn.disabled = false;
-        } else if (letter === 'compilation' || letter === 'soundtrack') {
+        } else if (letter === 'compilation' || letter === 'soundtrack' || letter === 'number') {
             btn.classList.toggle('active', letter === activeLetter);
             btn.disabled = false;
         } else {
