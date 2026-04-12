@@ -355,17 +355,19 @@ body {
 ::-webkit-scrollbar-thumb:hover { background: var(--gold-dark); }
 @media (max-width: 480px) {
     .site-header { padding: 0.75rem 0.5rem 0.5rem; }
-    .site-title { font-size: 2.2rem; letter-spacing: 1.5px; }
+    .site-title { font-size: 1.5rem; letter-spacing: 0.5px; }
     .control-bar { flex-direction: column; gap: 0.6rem; width: 100%; }
     .control-row { width: 100%; justify-content: space-between; }
     .control-row-1 { order: 1; justify-content: flex-end; }
     .control-row-2 { order: 2; min-width: 0; }
     .control-row-3 { order: 3; justify-content: flex-end; }
-    .compact-select { padding: 0.6rem 0.75rem; font-size: 0.9rem; }
-    .compact-search { padding: 0.65rem 0.85rem; font-size: 1rem; border: 2px solid var(--silver); }
-    .compact-btn { padding: 0.65rem 0.85rem; font-size: 1.1rem; border: 2px solid var(--gold-primary); }
-    .view-btn { padding: 0.6rem 0.75rem; font-size: 1rem; }
-    .compact-count { padding: 0.6rem 0.85rem; font-size: 0.95rem; border: 2px solid var(--gold-primary); }
+    .compact-select { padding: 0.6rem 0.75rem; font-size: 0.9rem; min-height: 44px; }
+    .compact-search { padding: 0.65rem 0.85rem; font-size: 1rem; border: 2px solid var(--silver); min-height: 44px; }
+    .compact-btn { padding: 0.65rem 0.85rem; font-size: 1.1rem; border: 2px solid var(--gold-primary); min-height: 44px; }
+    .view-btn { padding: 0.6rem 0.75rem; font-size: 1rem; min-height: 44px; }
+    .compact-count { padding: 0.6rem 0.85rem; font-size: 0.95rem; border: 2px solid var(--gold-primary); min-height: 44px; }
+    .alpha-btn { padding: 0.5rem 0.6rem; font-size: 0.8rem; min-height: 44px; }
+    .action-btn { min-height: 44px; }
     .collection-container { grid-template-columns: repeat(3, 1fr) !important; gap: 0.4rem; }
     .version-content { grid-template-columns: 1fr; }
     .modal-body { padding: var(--spacing-md); }
