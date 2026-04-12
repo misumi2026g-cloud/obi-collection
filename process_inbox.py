@@ -191,6 +191,8 @@ def extract_album_info(obi_path: Path) -> dict:
 # ── index.html update ────────────────────────────────────────────────────────
 
 def _slug(s: str) -> str:
+    if not s:
+        return "unknown"
     return re.sub(r"[^a-z0-9]+", "_", s.lower()).strip("_")
 
 
@@ -210,7 +212,7 @@ def find_data_line(lines: list) -> int:
 
 
 def update_index_html(info: dict, raw_url: str) -> dict:
-    html_path = BASE_DIR / "index.html"
+    html_path = BASE_DIR / "data.js"
     content = html_path.read_text(encoding="utf-8")
     lines = content.split("\n")
 
@@ -252,7 +254,7 @@ def update_index_html(info: dict, raw_url: str) -> dict:
     lines[data_idx] = line[:arr_start] + new_json + line[arr_end:]
     html_path.write_text("\n".join(lines), encoding="utf-8")
 
-    log(f"Added to index.html: id={album_id}, {info['artist']} — {info['album']}")
+    log(f"Added to data.js: id={album_id}, {info['artist']} — {info['album']}")
     return new_album
 
 
@@ -260,7 +262,7 @@ def update_index_html(info: dict, raw_url: str) -> dict:
 
 def git_push(artist: str, album: str):
     os.chdir(BASE_DIR)
-    subprocess.run(["git", "add", "index.html"], check=True)
+    subprocess.run(["git", "add", "data.js"], check=True)
     subprocess.run(
         ["git", "commit", "-m", f"Add {artist} - {album} (via inbox automation)"],
         check=True,
