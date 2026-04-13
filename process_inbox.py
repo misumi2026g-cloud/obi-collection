@@ -301,7 +301,15 @@ def main():
         log(f"  → {json.dumps(info, ensure_ascii=False)}")
 
         # 3. Upload combined image to Cloudinary
-        public_id = f"obi-strip-collection/{_slug(info['artist'])}_{_slug(info['album'])}"
+        base_public_id = f"obi-strip-collection/{_slug(info['artist'])}_{_slug(info['album'])}"
+        # Avoid overwriting existing Cloudinary images with the same name
+        html_path = BASE_DIR / "data.js"
+        existing_content = html_path.read_text(encoding="utf-8")
+        counter = 2
+        public_id = base_public_id
+        while f"{public_id}.jpg" in existing_content:
+            public_id = f"{base_public_id}-{counter}"
+            counter += 1
         log(f"Step 3/5 — Uploading to Cloudinary ({public_id})...")
         raw_url = upload_to_cloudinary(combined_path, public_id)
         log(f"  → {raw_url}")
