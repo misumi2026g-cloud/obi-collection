@@ -44,11 +44,7 @@ COLLECTION_DATA = {
 
 ### 🔴 未解決（優先度高）
 
-#### 1. STATIK SELEKTAH "The Balancing Act" 重複エントリ
-- `data.js` 内に同アルバムが4件存在する
-- **次のアクション:** `data.js` を検索して全エントリを洗い出し、正しい1件に統合する
-
-#### 2. PHCR-3036~7（All Eyez On Me）画像表示問題
+#### 1. PHCR-3036~7（All Eyez On Me）画像表示問題
 - 異なるOBIを持つ重複バージョンのうち、片方の画像が正常表示されない
 - **次のアクション:** Cloudinary URL・`versions[]` 構造を確認して修正
 
@@ -77,6 +73,7 @@ COLLECTION_DATA = {
 - Various Artists / O.S.T. カテゴリロジック整備
 - `_slug()` のnullセーフ対応
 - データ修正多数（RUN D.M.C.表記統一、yearJP修正など）
+- STATIK SELEKTAH "The Balancing Act" 重複エントリ整理（`id=ss01` の1件に統合済み）
 
 ---
 
