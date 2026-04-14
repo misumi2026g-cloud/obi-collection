@@ -1,7 +1,7 @@
 # DESIGN_v2.md — アップグレードデザイン仕様
 
 > 方向性: レコードコレクション・音楽アーカイブとしての重厚感  
-> ミュージアム／ギャラリー的な洗練、OBIストリップのゴールド・赤をアクセントに活用
+> ミュージアム／ギャラリー的な洗練、Wu-Tang イエロー（#F5C518）をアクセントカラーに統一
 
 ---
 
@@ -31,16 +31,13 @@
 | `--border-subtle` | `#2C2C2C` | 区切り線・グリッドライン |
 | `--border-mid` | `#3A3A3A` | カードボーダー通常時 |
 
-### アクセント（OBIストリップ由来）
+### アクセント
 
 | 変数名 | 値 | 用途・根拠 |
 |---|---|---|
-| `--gold-obi` | `#C9A84C` | メインゴールド（純金より落ち着いた本物のOBI帯の色） |
-| `--gold-bright` | `#E8C55A` | hover時ハイライト・強調 |
-| `--gold-dim` | `#8A6B28` | ボーダー暗色側・影 |
-| `--red-obi` | `#C0392B` | OBI赤帯アクセント（深みのある朱色） |
-| `--red-obi-bright` | `#E74C3C` | 赤アクセントhover |
-| `--red-obi-dim` | `#7B241C` | 赤の暗色側 |
+| `--gold-obi` | `#F5C518` | メインゴールド（Wu-Tang イエロー） |
+| `--gold-bright` | `#F9D040` | hover時ハイライト・強調 |
+| `--gold-dim` | `#A08000` | ボーダー暗色側・影 |
 
 ### テキスト
 
@@ -49,7 +46,7 @@
 | `--text-primary` | `#F0EDE6` | メインテキスト（温かみのあるオフホワイト） |
 | `--text-secondary` | `#9A9080` | サブテキスト・メタ情報 |
 | `--text-muted` | `#5C5650` | プレースホルダー・非アクティブ |
-| `--text-gold` | `#C9A84C` | アーティスト名・ラベル強調 |
+| `--text-gold` | `#F5C518` | アーティスト名・ラベル強調 |
 
 ---
 
@@ -59,7 +56,7 @@
 
 | 役割 | フォント | 理由 |
 |---|---|---|
-| サイトタイトル | `'Cormorant Garamond', serif` | アーカイブ・博物館的な格調、セリフの重厚感 |
+| サイトタイトル | `'Barlow Condensed', Impact, sans-serif` (weight 800) | Impact系のコンデンス×重量感、メーム連想なく格調あり |
 | セクション見出し | `'Oswald', sans-serif` (700) | 現行維持、レコードラベル的な力強さ |
 | アーティスト名 | `'Bebas Neue', sans-serif` | 現行維持 |
 | 本文・UI | `'Inter', 'Roboto Condensed', sans-serif` | 可読性重視、モダンなサンセリフ |
@@ -128,18 +125,17 @@ gap: 1rem;
 
 #### Hoverエフェクト（グリッドカード）
 
+シンプルなボーダー変化のみ。transform・scale・glowは使わない。
+
 ```css
 .album-card:hover {
-  transform: translateY(-6px) scale(1.02);
   border-color: var(--gold-obi);
-  box-shadow: 
-    0 12px 32px rgba(0,0,0,0.6),
-    0 0 0 1px var(--gold-dim),
-    0 0 24px rgba(201,168,76,0.15);
 }
 ```
 
 #### Hoverオーバーレイ（画像上）
+
+※ テキストオーバーレイなし。グラデーション暗幕のみ表示。
 
 ```css
 .album-image-container::after {
@@ -148,8 +144,8 @@ gap: 1rem;
   inset: 0;
   background: linear-gradient(
     to bottom,
-    transparent 50%,
-    rgba(0,0,0,0.85) 100%
+    transparent 45%,
+    rgba(0,0,0,0.88) 100%
   );
   opacity: 0;
   transition: opacity 0.3s ease;
@@ -160,45 +156,12 @@ gap: 1rem;
 }
 ```
 
-#### ホバー時アーティスト情報の出現
-
-```css
-.album-card-overlay-info {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 0.75rem;
-  transform: translateY(8px);
-  opacity: 0;
-  transition: all 0.3s ease;
-}
-
-.album-card:hover .album-card-overlay-info {
-  transform: translateY(0);
-  opacity: 1;
-}
-
-.album-card-overlay-info .artist {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 0.85rem;
-  color: var(--gold-bright);
-  letter-spacing: 1.5px;
-}
-
-.album-card-overlay-info .title {
-  font-size: 0.75rem;
-  color: var(--text-primary);
-  opacity: 0.85;
-}
-```
-
 ### リストビュー（アップグレード）
 
 - サムネイル: `120px × 120px`（現行90px → 拡大）
 - カードpadding: `1rem 1.5rem`
 - hover: `transform: translateX(4px)` + ゴールドボーダー
-- 左端に`3px solid --red-obi`のアクセントラインを追加（OBI帯のイメージ）
+- 左端に`3px solid --gold-obi`のアクセントラインを追加（OBI帯のイメージ）
 
 ```css
 .list-view .album-card {
@@ -206,7 +169,7 @@ gap: 1rem;
   transition: border-left-color 0.2s ease, transform 0.2s ease, background 0.2s ease;
 }
 .list-view .album-card:hover {
-  border-left-color: var(--red-obi);
+  border-left-color: var(--gold-obi);
   transform: translateX(4px);
   background: var(--surface-2);
 }
@@ -220,7 +183,7 @@ gap: 1rem;
 .site-header {
   background: var(--surface-1);
   border-bottom: 1px solid var(--border-subtle);
-  /* 下部に細いゴールドライン（OBI帯の赤線を想起） */
+  /* 下部に細いゴールドライン */
   box-shadow: 
     0 1px 0 var(--gold-dim),
     0 4px 20px rgba(0,0,0,0.5);
@@ -232,11 +195,11 @@ gap: 1rem;
 
 ```css
 .site-title {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: 'Barlow Condensed', Impact, sans-serif;
   font-size: clamp(1.8rem, 4vw, 3.5rem);
-  font-weight: 400;          /* セリフの細さを活かす */
+  font-weight: 800;
   letter-spacing: 0.15em;
-  color: var(--text-primary);
+  color: var(--gold-obi);    /* #F5C518 Wu-Tang イエロー */
   text-transform: uppercase;
 }
 
@@ -274,7 +237,7 @@ gap: 1rem;
 .alpha-btn:hover:not(:disabled) {
   border-color: var(--gold-obi);
   color: var(--gold-obi);
-  background: rgba(201,168,76,0.08);
+  background: rgba(245,197,24,0.08);
 }
 
 .alpha-btn.active {
@@ -306,7 +269,7 @@ gap: 1rem;
 
 .compact-search:focus {
   border-color: var(--gold-obi);
-  box-shadow: 0 0 0 2px rgba(201,168,76,0.12);
+  box-shadow: 0 0 0 2px rgba(245,197,24,0.12);
   outline: none;
 }
 ```
@@ -323,7 +286,7 @@ gap: 1rem;
   border-radius: 8px;
   box-shadow: 
     0 24px 64px rgba(0,0,0,0.8),
-    0 0 0 1px rgba(201,168,76,0.1);
+    0 0 0 1px rgba(245,197,24,0.1);
   animation: modalRise 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -337,9 +300,9 @@ gap: 1rem;
   border-bottom: 1px solid var(--gold-dim);
 }
 
-/* カタログ番号などのラベルを赤アクセントに */
+/* カタログ番号などのラベルをゴールドアクセントに */
 .detail-label {
-  color: var(--red-obi);
+  color: var(--gold-obi);
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -362,7 +325,7 @@ OBIストリップの色を活用した2トーン構成。
 .action-btn.primary:hover {
   background: var(--gold-bright);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(201,168,76,0.3);
+  box-shadow: 0 6px 20px rgba(245,197,24,0.3);
 }
 
 /* セカンダリ（Discogs / Genius 等） */
@@ -374,7 +337,7 @@ OBIストリップの色を活用した2トーン構成。
 .action-btn.secondary:hover {
   border-color: var(--gold-dim);
   color: var(--gold-obi);
-  background: rgba(201,168,76,0.06);
+  background: rgba(245,197,24,0.06);
   transform: translateY(-2px);
 }
 ```
@@ -399,7 +362,7 @@ OBIストリップの色を活用した2トーン構成。
 
 ### OBIストリップ装飾ライン
 
-カードグリッドの上部、またはセクション見出しに細い赤ラインを入れる。
+カードグリッドの上部、またはセクション見出しに細いゴールドラインを入れる。
 
 ```css
 .section-divider {
@@ -416,8 +379,8 @@ OBIストリップの色を活用した2トーン構成。
   background: linear-gradient(to right, transparent, var(--border-mid));
 }
 .section-divider::before {
-  background: linear-gradient(to right, var(--red-obi-dim), var(--border-mid));
-  max-width: 4px;  /* 赤帯の短いアクセント */
+  background: linear-gradient(to right, var(--gold-dim), var(--border-mid));
+  max-width: 4px;  /* ゴールドの短いアクセント */
 }
 ```
 
@@ -463,12 +426,12 @@ OBIストリップの色を活用した2トーン構成。
 |---|---|---|
 | グリッドgap | `0.35rem` | `1rem` |
 | カードminサイズ | `100px` | `160px`（デスクトップ`200px`） |
-| カードhover | なし | translateY+scale+glow |
+| カードhover | なし | ボーダー色変化のみ（シンプル） |
 | サイトタイトルフォント | Bebas Neue（ゴシック） | Cormorant Garamond（セリフ） |
 | ゴールドトーン | `#FFD700`（鮮やか） | `#C9A84C`（落ち着いたOBI金） |
-| 赤アクセント | なし | `#C0392B`（OBI赤帯） |
+| 赤アクセント | なし | なし（ゴールド `#F5C518` に統一） |
 | ヘッダーpadding | `0.75rem 1rem` | `1.5rem 2rem` |
 | メインコンテンツpadding | `0 1.5rem` | `0 clamp(1.5rem, 5vw, 4rem)` |
 | スクロールバー幅 | `12px` | `6px` |
 | モーダルアニメ | `translateY(-50px)` | `scale(0.98) + translateY(24px)` cubic |
-| リストカードhover | 色変化のみ | `translateX(4px)` + 赤左ボーダー |
+| リストカードhover | 色変化のみ | `translateX(4px)` + ゴールド左ボーダー |
