@@ -48,23 +48,6 @@ COLLECTION_DATA = {
 - 異なるOBIを持つ重複バージョンのうち、片方の画像が正常表示されない
 - **次のアクション:** Cloudinary URL・`versions[]` 構造を確認して修正
 
-### 🟡 進行中
-
-#### 3. X（Twitter）自動投稿の実装
-- Instagram（Meta Graph API）はFacebookアカウント必要なため却下 → Xを採用
-- **投稿フォーマット:**
-  - アーティスト名・アルバム名
-  - リリース年・カタログ番号
-  - 作品についての一言コメント（日本語）※OBIではなく音楽の内容について
-  - ハッシュタグなし
-- **投稿ペース:** 未確定（バックログ消化のため1日複数投稿を検討中）
-- **X API設定:** 未完了
-- **実装フェーズ:**
-  - [ ] Phase 1: X API認証セットアップ（APIキー取得・環境変数設定）
-  - [ ] Phase 2: 投稿スクリプト作成（`post_to_x.py`）
-  - [ ] Phase 3: launchd連携・スケジューリング
-  - [ ] Phase 4: 投稿済み管理（重複投稿防止）
-
 ### 🟢 完了済み
 
 - `data.js` へのデータ分離（index.htmlから独立）
@@ -74,6 +57,7 @@ COLLECTION_DATA = {
 - `_slug()` のnullセーフ対応
 - データ修正多数（RUN D.M.C.表記統一、yearJP修正など）
 - STATIK SELEKTAH "The Balancing Act" 重複エントリ整理（`id=ss01` の1件に統合済み）
+- X（Twitter）自動投稿の実装（`post_to_x.py` + `posted.json` による重複防止、launchd連携）
 
 ---
 
