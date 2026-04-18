@@ -987,11 +987,17 @@ function showAlbumModal(album) {
             ${album.note_url ? `<div class="note-embed-area" style="margin-top:24px;"><a class="note-embed" href="${album.note_url}" style="display:block; text-align:center;"></a></div>` : ''}
         </div>`;
     if (album.note_url) {
-        const noteScript = document.createElement('script');
-        noteScript.src = 'https://note.com/scripts/embed.js';
-        noteScript.async = true;
-        noteScript.charset = 'utf-8';
-        document.body.appendChild(noteScript);
+        // 既存のnoteスクリプトを削除してから再追加
+        const existingScript = document.querySelector('script[src="https://note.com/scripts/embed.js"]');
+        if (existingScript) existingScript.remove();
+
+        setTimeout(() => {
+            const noteScript = document.createElement('script');
+            noteScript.src = 'https://note.com/scripts/embed.js';
+            noteScript.async = true;
+            noteScript.charset = 'utf-8';
+            document.body.appendChild(noteScript);
+        }, 100);
     }
     modalBody.querySelectorAll('.modal-album-image').forEach(img => {
         let pressTimer;
