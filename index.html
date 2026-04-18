@@ -986,18 +986,26 @@ function showAlbumModal(album) {
             ${versionsHTML}
             ${album.note_url ? `<div class="note-embed-area" style="margin-top:24px;"><a class="note-embed" href="${album.note_url}" style="display:block; text-align:center;"></a></div>` : ''}
         </div>`;
+    // note_urlがある場合、oEmbed APIでカードを取得して表示
     if (album.note_url) {
-        // 既存のnoteスクリプトを削除してから再追加
-        const existingScript = document.querySelector('script[src="https://note.com/scripts/embed.js"]');
-        if (existingScript) existingScript.remove();
-
-        setTimeout(() => {
-            const noteScript = document.createElement('script');
-            noteScript.src = 'https://note.com/scripts/embed.js';
-            noteScript.async = true;
-            noteScript.charset = 'utf-8';
-            document.body.appendChild(noteScript);
-        }, 100);
+        const noteArea = modalBody.querySelector('.note-embed-area');
+        if (noteArea) {
+            fetch(`https://note.com/oembed?url=${encodeURIComponent(album.note_url)}&format=json`)
+                .then(r => r.json())
+                .then(data => {
+                    noteArea.innerHTML = data.html;
+                    // oEmbedのhtmlにscriptが含まれる場合は再実行
+                    noteArea.querySelectorAll('script').forEach(s => {
+                        const ns = document.createElement('script');
+                        ns.src = s.src;
+                        ns.async = true;
+                        document.body.appendChild(ns);
+                    });
+                })
+                .catch(() => {
+                    noteArea.innerHTML = `<a href="${album.note_url}" target="_blank" style="color:#FFD700;">noteで読む →</a>`;
+                });
+        }
     }
     modalBody.querySelectorAll('.modal-album-image').forEach(img => {
         let pressTimer;
