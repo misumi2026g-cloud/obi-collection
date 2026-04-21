@@ -188,6 +188,67 @@ def extract_album_info(obi_path: Path) -> dict:
     return json.loads(text.strip())
 
 
+# ── Claude API — tracklist extraction ───────────────────────────────────────
+
+def extract_tracklist(t_path: Path) -> list:
+    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    if not api_key:
+        raise EnvironmentError("ANTHROPIC_API_KEY is not set")
+
+    suffix = t_path.suffix.lower()
+    media_type = "image/jpeg" if suffix in (".jpg", ".jpeg") else "image/png"
+    image_b64 = base64.standard_b64encode(t_path.read_bytes()).decode()
+
+    prompt = (
+        "このCDのトラックリスト画像から曲名と曲番号のみを抽出してください。\n"
+        "時間、作曲者、演奏者などの情報は不要です。\n"
+        "必ず以下のJSON配列のみを返してください（前後の説明不要）:\n\n"
+        '["1. Track Name", "2. Track Name", ...]\n\n'
+        "ローマ数字の曲番号は算用数字に変換してください。"
+    )
+
+    payload = json.dumps(
+        {
+            "model": "claude-opus-4-6",
+            "max_tokens": 1024,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "image",
+                            "source": {
+                                "type": "base64",
+                                "media_type": media_type,
+                                "data": image_b64,
+                            },
+                        },
+                        {"type": "text", "text": prompt},
+                    ],
+                }
+            ],
+        }
+    ).encode()
+
+    req = urllib.request.Request(
+        "https://api.anthropic.com/v1/messages",
+        data=payload,
+        headers={
+            "x-api-key": api_key,
+            "anthropic-version": "2023-06-01",
+            "content-type": "application/json",
+        },
+    )
+    with urllib.request.urlopen(req) as resp:
+        result = json.loads(resp.read())
+
+    text = result["content"][0]["text"].strip()
+    text = re.sub(r"^```(?:json)?\s*", "", text)
+    text = re.sub(r"\s*```$", "", text)
+
+    return json.loads(text.strip())
+
+
 # ── index.html update ────────────────────────────────────────────────────────
 
 def _slug(s: str) -> str:
@@ -211,7 +272,7 @@ def find_data_line(lines: list) -> int:
     raise RuntimeError("Could not locate albums JSON array in index.html")
 
 
-def update_index_html(info: dict, raw_url: str) -> dict:
+def update_index_html(info: dict, raw_url: str, tracklist: list = None) -> dict:
     html_path = BASE_DIR / "data.js"
     content = html_path.read_text(encoding="utf-8")
     lines = content.split("\n")
@@ -249,6 +310,9 @@ def update_index_html(info: dict, raw_url: str) -> dict:
         ],
     }
 
+    if tracklist:
+        new_album["tracklist"] = tracklist
+
     albums.append(new_album)
     new_json = json.dumps(albums, ensure_ascii=False, separators=(",", ":"))
     lines[data_idx] = line[:arr_start] + new_json + line[arr_end:]
@@ -274,9 +338,10 @@ def git_push(artist: str, album: str):
 # ── Main ─────────────────────────────────────────────────────────────────────
 
 def main():
-    obi_path     = next((p for p in [INBOX / "a.jpg", INBOX / "あ.jpg"] if p.exists()), INBOX / "a.jpg")
-    jacket_path  = next((p for p in [INBOX / "b.jpg", INBOX / "い.jpg"] if p.exists()), INBOX / "b.jpg")
+    obi_path      = next((p for p in [INBOX / "a.jpg", INBOX / "あ.jpg"] if p.exists()), INBOX / "a.jpg")
+    jacket_path   = next((p for p in [INBOX / "b.jpg", INBOX / "い.jpg"] if p.exists()), INBOX / "b.jpg")
     combined_path = next((p for p in [INBOX / "c.jpg", INBOX / "う.jpg"] if p.exists()), INBOX / "c.jpg")
+    t_path        = INBOX / "t.jpg"
 
     # Determine mode: combined.jpg alone, or obi.jpg + jacket.jpg
     combined_only = combined_path.exists() and not obi_path.exists() and not jacket_path.exists()
@@ -302,6 +367,13 @@ def main():
             info["artist"] = "Various Artists"
         log(f"  → {json.dumps(info, ensure_ascii=False)}")
 
+        # 2b. Extract tracklist if t.jpg exists
+        tracklist = None
+        if t_path.exists():
+            log("Step 2b — Extracting tracklist from t.jpg...")
+            tracklist = extract_tracklist(t_path)
+            log(f"  → {len(tracklist)} tracks extracted")
+
         # 3. Upload combined image to Cloudinary
         base_public_id = f"obi-strip-collection/{_slug(info['artist'])}_{_slug(info['album'])}"
         # Avoid overwriting existing Cloudinary images with the same name
@@ -318,7 +390,7 @@ def main():
 
         # 4. Update index.html
         log("Step 4/5 — Updating index.html...")
-        update_index_html(info, raw_url)
+        update_index_html(info, raw_url, tracklist)
 
         # 5. Commit and push
         log("Step 5/5 — Pushing to GitHub...")
@@ -329,6 +401,8 @@ def main():
             obi_path.unlink()
             jacket_path.unlink()
         combined_path.unlink(missing_ok=True)
+        if t_path.exists():
+            t_path.unlink()
         log("Inbox cleaned up")
         log(f"SUCCESS: {info['artist']} — {info['album']} added!")
 
