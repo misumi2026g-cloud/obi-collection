@@ -208,7 +208,8 @@ def extract_tracklist(t_path: Path) -> list:
         '例：["4. Czar ft. M.O.P.", "19. Look Over Your Shoulder ft. Kendrick Lamar"]\n\n'
         "必ず以下のJSON配列のみを返してください（前後の説明不要）:\n\n"
         '["1. Track Name", "2. Track Name", ...]\n\n'
-        "ローマ数字の曲番号は算用数字に変換してください。"
+        "ローマ数字の曲番号は算用数字に変換してください。\n"
+        "画像に記載されている情報のみを抽出すること。学習データや推測で補完しないこと。"
     )
 
     payload = json.dumps(
