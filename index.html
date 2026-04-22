@@ -401,6 +401,9 @@ body {
 .version-image-wrapper { grid-area: image; width: 100%; }
 .modal-album-image { width: 100%; max-height: 45vh; object-fit: contain; border-radius: 6px; border: 1px solid var(--border-mid); box-shadow: var(--shadow-lg); cursor: pointer; -webkit-user-select: none; user-select: none; transition: border-color 0.2s ease; }
 .modal-album-image:hover { border-color: var(--gold-obi); }
+#img-viewer { display: none; position: fixed; inset: 0; z-index: 4000; background: rgba(0,0,0,0.95); overflow: hidden; touch-action: none; }
+#img-viewer img { position: absolute; top: 50%; left: 50%; max-width: 90vw; max-height: 90vh; object-fit: contain; -webkit-user-select: none; user-select: none; touch-action: none; cursor: grab; }
+#img-viewer img.grabbing { cursor: grabbing; }
 .version-details { grid-area: details; display: flex; flex-direction: column; gap: 0; }
 .detail-row { display: flex; padding: 0.5rem 0; border-bottom: 1px solid var(--border-subtle); }
 .tracklist-accordion { border-bottom: 1px solid var(--border-subtle); }
@@ -988,6 +991,7 @@ function showAlbumModal(album) {
         img.addEventListener('touchstart', () => { img.dataset.longPress = 'false'; pressTimer = setTimeout(() => { img.dataset.longPress = 'true'; }, 500); });
         img.addEventListener('touchend', () => { clearTimeout(pressTimer); setTimeout(() => { img.dataset.longPress = 'false'; }, 100); });
         img.addEventListener('touchmove', () => clearTimeout(pressTimer));
+        img.addEventListener('click', () => { if (img.dataset.longPress !== 'true') openImageViewer(img.src); });
     });
     albumModal.classList.add('active');
     document.body.style.overflow = 'hidden';
@@ -1079,8 +1083,83 @@ function debounce(func, wait) {
     };
 }
 
+// ── Image viewer ─────────────────────────────────────────────────────────────
+let imgViewer = null, ivImg = null, ivScale = 1, ivTx = 0, ivTy = 0;
+let ivPointers = {}, ivDragStart = null;
+
+function initImageViewer() {
+    imgViewer = document.createElement('div');
+    imgViewer.id = 'img-viewer';
+    ivImg = document.createElement('img');
+    imgViewer.appendChild(ivImg);
+    document.body.appendChild(imgViewer);
+    imgViewer.addEventListener('click', e => { if (e.target === imgViewer) closeImageViewer(); });
+    ivImg.addEventListener('pointerdown', ivPointerDown);
+    ivImg.addEventListener('pointermove', ivPointerMove);
+    ivImg.addEventListener('pointerup', ivPointerUp);
+    ivImg.addEventListener('pointercancel', ivPointerUp);
+    ivImg.addEventListener('dragstart', e => e.preventDefault());
+}
+
+function openImageViewer(src) {
+    if (!imgViewer) initImageViewer();
+    ivImg.src = src;
+    ivScale = 1; ivTx = 0; ivTy = 0; ivPointers = {}; ivDragStart = null;
+    ivApplyTransform();
+    imgViewer.style.display = 'block';
+}
+
+function closeImageViewer() {
+    if (imgViewer) imgViewer.style.display = 'none';
+}
+
+function ivApplyTransform() {
+    ivImg.style.transform = `translate(calc(-50% + ${ivTx}px), calc(-50% + ${ivTy}px)) scale(${ivScale})`;
+}
+
+function ivPointerDown(e) {
+    e.preventDefault();
+    ivImg.setPointerCapture(e.pointerId);
+    ivPointers[e.pointerId] = { x: e.clientX, y: e.clientY };
+    ivImg.classList.add('grabbing');
+    if (Object.keys(ivPointers).length === 1) {
+        ivDragStart = { x: e.clientX, y: e.clientY, tx: ivTx, ty: ivTy, lastDist: null };
+    }
+}
+
+function ivPointerMove(e) {
+    e.preventDefault();
+    ivPointers[e.pointerId] = { x: e.clientX, y: e.clientY };
+    const ids = Object.keys(ivPointers);
+    if (ids.length === 2) {
+        const [p1, p2] = ids.map(k => ivPointers[k]);
+        const dist = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+        if (ivDragStart && ivDragStart.lastDist) {
+            ivScale = Math.max(0.5, Math.min(8, ivScale * (dist / ivDragStart.lastDist)));
+        }
+        if (ivDragStart) ivDragStart.lastDist = dist;
+    } else if (ids.length === 1 && ivDragStart) {
+        ivTx = ivDragStart.tx + (e.clientX - ivDragStart.x);
+        ivTy = ivDragStart.ty + (e.clientY - ivDragStart.y);
+    }
+    ivApplyTransform();
+}
+
+function ivPointerUp(e) {
+    delete ivPointers[e.pointerId];
+    ivImg.classList.remove('grabbing');
+    const ids = Object.keys(ivPointers);
+    if (ids.length === 1) {
+        const r = ivPointers[ids[0]];
+        ivDragStart = { x: r.x, y: r.y, tx: ivTx, ty: ivTy, lastDist: null };
+    } else if (ids.length === 0) {
+        ivDragStart = null;
+    }
+}
+
 document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
+        if (imgViewer && imgViewer.style.display !== 'none') { closeImageViewer(); return; }
         if (albumModal.classList.contains('active')) closeModal();
     }
     if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); searchInput.focus(); }
