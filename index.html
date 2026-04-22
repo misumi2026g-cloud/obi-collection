@@ -403,6 +403,13 @@ body {
 .modal-album-image:hover { border-color: var(--gold-obi); }
 .version-details { grid-area: details; display: flex; flex-direction: column; gap: 0; }
 .detail-row { display: flex; padding: 0.5rem 0; border-bottom: 1px solid var(--border-subtle); }
+.tracklist-accordion { border-bottom: 1px solid var(--border-subtle); }
+.tracklist-toggle { display: flex; justify-content: space-between; align-items: center; width: 100%; background: none; border: none; padding: 0.5rem 0; cursor: pointer; font-family: var(--font-heading); font-weight: 700; color: var(--gold-obi); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; }
+.tracklist-toggle i { transition: transform 0.2s ease; }
+.tracklist-accordion.open .tracklist-toggle i { transform: rotate(180deg); }
+.tracklist-body { display: none; margin: 0; padding: 0.25rem 0 0.75rem 1.25rem; }
+.tracklist-accordion.open .tracklist-body { display: block; }
+.tracklist-body li { font-size: 0.85rem; color: var(--text-primary); padding: 0.1rem 0; }
 .detail-label { font-family: var(--font-heading); font-weight: 700; color: var(--gold-obi); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; width: 120px; flex-shrink: 0; padding-top: 0.1rem; }
 .detail-value { color: var(--text-primary); flex: 1; font-size: 0.9rem; }
 /* ===== ACTION BUTTONS ===== */
@@ -945,6 +952,7 @@ function showAlbumModal(album) {
                         <img src="${version.image}" alt="${album.album}" class="modal-album-image">
                     </div>
                     <div class="version-details">
+                        ${index === 0 && album.tracklist ? `<div class="tracklist-accordion"><button class="tracklist-toggle" onclick="this.parentElement.classList.toggle('open')">Track List <i class="fas fa-chevron-down"></i></button><ol class="tracklist-body">${album.tracklist.map(t => `<li>${t.replace(/^\d+\.\s*/, '')}</li>`).join('')}</ol></div>` : ''}
                         ${version.yearJP ? `<div class="detail-row"><span class="detail-label">Japan Release</span><span class="detail-value">${version.yearJP}</span></div>` : ''}
                         ${version.catalog ? `<div class="detail-row"><span class="detail-label">Catalog No.</span><span class="detail-value">${version.catalog}</span></div>` : ''}
                         ${version.note ? `<div class="detail-row"><span class="detail-label">Note</span><span class="detail-value">${version.note}</span></div>` : ''}
