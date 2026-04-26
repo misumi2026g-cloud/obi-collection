@@ -125,6 +125,23 @@ def upload_to_cloudinary(image_path: Path, public_id: str) -> str:
         return json.loads(resp.read())["secure_url"]
 
 
+# ── Image media type detection ───────────────────────────────────────────────
+
+def detect_media_type(path: Path) -> str:
+    """Detect image media type from magic bytes, ignoring file extension."""
+    header = path.read_bytes()[:8]
+    if header[:8] == b'\x89PNG\r\n\x1a\n':
+        return "image/png"
+    if header[:2] == b'\xff\xd8':
+        return "image/jpeg"
+    if header[:4] in (b'GIF8', b'GIF9'):
+        return "image/gif"
+    if header[:4] == b'RIFF' and path.read_bytes()[8:12] == b'WEBP':
+        return "image/webp"
+    # fallback: trust extension
+    return "image/jpeg" if path.suffix.lower() in (".jpg", ".jpeg") else "image/png"
+
+
 # ── Claude API — album info extraction ──────────────────────────────────────
 
 def extract_album_info(obi_path: Path) -> dict:
@@ -132,8 +149,7 @@ def extract_album_info(obi_path: Path) -> dict:
     if not api_key:
         raise EnvironmentError("ANTHROPIC_API_KEY is not set")
 
-    suffix = obi_path.suffix.lower()
-    media_type = "image/jpeg" if suffix in (".jpg", ".jpeg") else "image/png"
+    media_type = detect_media_type(obi_path)
     image_b64 = base64.standard_b64encode(obi_path.read_bytes()).decode()
 
     prompt = (
@@ -195,8 +211,7 @@ def extract_tracklist(t_path: Path) -> list:
     if not api_key:
         raise EnvironmentError("ANTHROPIC_API_KEY is not set")
 
-    suffix = t_path.suffix.lower()
-    media_type = "image/jpeg" if suffix in (".jpg", ".jpeg") else "image/png"
+    media_type = detect_media_type(t_path)
     image_b64 = base64.standard_b64encode(t_path.read_bytes()).decode()
 
     prompt = (
