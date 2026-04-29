@@ -786,7 +786,7 @@ function updateAlphaBar() {
             });
             inner.appendChild(btn);
         });
-        [['V.A.', 'compilation'], ['OST', 'soundtrack']].forEach(([label, value]) => {
+        [['V.A.', 'compilation'], ['OST', 'soundtrack'], ['R&B', 'rnb'], ['SOUL & JAZZ', 'souljazz']].forEach(([label, value]) => {
             const btn = document.createElement('button');
             btn.className = 'alpha-btn';
             btn.textContent = label;
@@ -811,7 +811,7 @@ function updateAlphaBar() {
         if (letter === '') {
             btn.classList.toggle('active', activeLetter === '');
             btn.disabled = false;
-        } else if (letter === 'compilation' || letter === 'soundtrack' || letter === 'number') {
+        } else if (letter === 'compilation' || letter === 'soundtrack' || letter === 'number' || letter === 'rnb' || letter === 'souljazz') {
             btn.classList.toggle('active', letter === activeLetter);
             btn.disabled = false;
         } else {
@@ -838,6 +838,12 @@ function applyAlphabetFilter() {
     } else if (alphabetFilter === 'compilation') {
         filteredAlbums = filteredAlbums.filter(a => a.artist === 'V.A.');
         filteredAlbums.sort((a, b) => a.album.toLowerCase().localeCompare(b.album.toLowerCase()));
+    } else if (alphabetFilter === 'rnb') {
+        filteredAlbums = filteredAlbums.filter(a => a.genre === 'rnb');
+        filteredAlbums.sort((a, b) => getSortName(a.artist_sort || a.artist).toLowerCase().localeCompare(getSortName(b.artist_sort || b.artist).toLowerCase()));
+    } else if (alphabetFilter === 'souljazz') {
+        filteredAlbums = filteredAlbums.filter(a => a.genre === 'souljazz');
+        filteredAlbums.sort((a, b) => getSortName(a.artist_sort || a.artist).toLowerCase().localeCompare(getSortName(b.artist_sort || b.artist).toLowerCase()));
     } else {
         const isDecade = ['1980s','1990s','2000s','2010s','2020s'].includes(alphabetFilter);
         if (isDecade) {
