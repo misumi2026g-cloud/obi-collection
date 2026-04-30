@@ -275,18 +275,6 @@ function updateAlphaBar() {
     if (!bar || !inner) return;
     bar.style.display = '';
     if (!inner.children.length) {
-        const hashBtn = document.createElement('button');
-        hashBtn.className = 'alpha-btn';
-        hashBtn.textContent = '#';
-        hashBtn.dataset.letter = 'number';
-        hashBtn.dataset.value = 'number';
-        hashBtn.addEventListener('click', () => {
-            alphabetSelect.value = (alphabetSelect.value === 'number') ? '' : 'number';
-            sortSelect.value = 'artist-asc';
-            applyAlphabetFilter();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-        inner.appendChild(hashBtn);
         'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(letter => {
             const btn = document.createElement('button');
             btn.className = 'alpha-btn';
@@ -301,6 +289,18 @@ function updateAlphaBar() {
             });
             inner.appendChild(btn);
         });
+        const hashBtn = document.createElement('button');
+        hashBtn.className = 'alpha-btn';
+        hashBtn.textContent = '#';
+        hashBtn.dataset.letter = 'number';
+        hashBtn.dataset.value = 'number';
+        hashBtn.addEventListener('click', () => {
+            alphabetSelect.value = (alphabetSelect.value === 'number') ? '' : 'number';
+            sortSelect.value = 'artist-asc';
+            applyAlphabetFilter();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+        inner.appendChild(hashBtn);
         [['V.A.', 'compilation'], ['O.S.T.', 'soundtrack'], ['R&B', 'r&b'], ['SOUL & JAZZ', 'souljazz']].forEach(([label, value]) => {
             const btn = document.createElement('button');
             btn.className = 'alpha-btn';
