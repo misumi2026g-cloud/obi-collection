@@ -530,7 +530,7 @@ body {
                         <option disabled>─────</option>
                         <option value="soundtrack">O.S.T.</option>
                         <option value="compilation">Compilation</option>
-                        <option value="rnb">R&amp;B</option>
+                        <option value="r&b">R&amp;B</option>
                         <option value="souljazz">Soul &amp; Jazz</option>
                         <option disabled>─────</option>
                         <option value="number">#</option>
@@ -788,7 +788,7 @@ function updateAlphaBar() {
             });
             inner.appendChild(btn);
         });
-        [['V.A.', 'compilation'], ['O.S.T.', 'soundtrack'], ['R&B', 'rnb'], ['SOUL & JAZZ', 'souljazz']].forEach(([label, value]) => {
+        [['V.A.', 'compilation'], ['O.S.T.', 'soundtrack'], ['R&B', 'r&b'], ['SOUL & JAZZ', 'souljazz']].forEach(([label, value]) => {
             const btn = document.createElement('button');
             btn.className = 'alpha-btn';
             btn.textContent = label;
@@ -813,7 +813,7 @@ function updateAlphaBar() {
         if (letter === '') {
             btn.classList.toggle('active', activeLetter === '');
             btn.disabled = false;
-        } else if (letter === 'compilation' || letter === 'soundtrack' || letter === 'number' || letter === 'rnb' || letter === 'souljazz') {
+        } else if (letter === 'compilation' || letter === 'soundtrack' || letter === 'number' || letter === 'r&b' || letter === 'souljazz') {
             btn.classList.toggle('active', letter === activeLetter);
             btn.disabled = false;
         } else {
@@ -840,8 +840,8 @@ function applyAlphabetFilter() {
     } else if (alphabetFilter === 'compilation') {
         filteredAlbums = filteredAlbums.filter(a => a.artist === 'V.A.');
         filteredAlbums.sort((a, b) => a.album.toLowerCase().localeCompare(b.album.toLowerCase()));
-    } else if (alphabetFilter === 'rnb') {
-        filteredAlbums = filteredAlbums.filter(a => a.genre === 'rnb');
+    } else if (alphabetFilter === 'r&b') {
+        filteredAlbums = filteredAlbums.filter(a => a.genre === 'r&b');
         filteredAlbums.sort((a, b) => {
             const aa = getSortName(a.artist_sort || a.artist).toLowerCase(), ab = getSortName(b.artist_sort || b.artist).toLowerCase();
             if (aa !== ab) return aa.localeCompare(ab);
@@ -867,7 +867,7 @@ function applyAlphabetFilter() {
         if (isDecade) {
             const starts = {'1980s':1980,'1990s':1990,'2000s':2000,'2010s':2010,'2020s':2020};
             const ends = {'1980s':1990,'1990s':2000,'2000s':2010,'2010s':2020,'2020s':2030};
-            filteredAlbums = filteredAlbums.filter(a => { const y = a.versions[0].year; return a.genre !== 'rnb' && a.genre !== 'souljazz' && y >= starts[alphabetFilter] && y < ends[alphabetFilter]; });
+            filteredAlbums = filteredAlbums.filter(a => { const y = a.versions[0].year; return a.genre !== 'r&b' && a.genre !== 'souljazz' && y >= starts[alphabetFilter] && y < ends[alphabetFilter]; });
             filteredAlbums.sort((a, b) => {
                 const ya = a.versions[0].year||9999, yb = b.versions[0].year||9999;
                 if (ya !== yb) return ya - yb;
@@ -875,9 +875,9 @@ function applyAlphabetFilter() {
             });
         } else if (alphabetFilter !== '') {
             if (alphabetFilter === 'number') {
-                filteredAlbums = filteredAlbums.filter(a => a.genre !== 'rnb' && a.genre !== 'souljazz' && /^[0-9]/.test(getSortName(a.artist_sort || a.artist)));
+                filteredAlbums = filteredAlbums.filter(a => a.genre !== 'r&b' && a.genre !== 'souljazz' && /^[0-9]/.test(getSortName(a.artist_sort || a.artist)));
             } else {
-                filteredAlbums = filteredAlbums.filter(a => a.genre !== 'rnb' && a.genre !== 'souljazz' && getSortName(a.artist_sort || a.artist) !== "V.A." && getSortName(a.artist_sort || a.artist) !== "O.S.T." && getSortName(a.artist_sort || a.artist).toUpperCase().startsWith(alphabetFilter));
+                filteredAlbums = filteredAlbums.filter(a => a.genre !== 'r&b' && a.genre !== 'souljazz' && getSortName(a.artist_sort || a.artist) !== "V.A." && getSortName(a.artist_sort || a.artist) !== "O.S.T." && getSortName(a.artist_sort || a.artist).toUpperCase().startsWith(alphabetFilter));
             }
             filteredAlbums.sort((a, b) => {
                 const aa = getSortName(a.artist_sort || a.artist).toLowerCase(), ab = getSortName(b.artist_sort || b.artist).toLowerCase();
