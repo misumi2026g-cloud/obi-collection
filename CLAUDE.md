@@ -24,6 +24,7 @@ const COLLECTION_DATA = {
       artist: "ARTIST NAME",    // カテゴリ表示に使用
       artist_sort: "Sort Name", // 任意。表示名とソート名が異なる場合のみ設定
       album: "Album Title",
+      genre: "hiphop",          // 任意。下記選択肢から1つ
       versions: [
         {
           year: 1995,           // 原盤リリース年（MusicBrainz等で確認）
@@ -38,6 +39,13 @@ const COLLECTION_DATA = {
 };
 ```
 
+### genre 選択肢
+
+`hiphop` / `r&b` / `souljazz` / `reggae` / `funk` / `rock` / `pop` / `other`
+
+- V.A.・O.S.T. エントリには genre を設定しない
+- `r&b` と `souljazz` のエントリはアルファベット・年代フィルタから除外され、専用カテゴリボタンに表示される
+
 ---
 
 ## 重要ルール
@@ -48,11 +56,12 @@ const COLLECTION_DATA = {
 - `data.js` 以外にコレクションデータを書くこと
 - `year` と `yearJP` の混同（year=原盤年、yearJP=日本盤年）
 - `image` フィールドへのフルURLの記入（Cloudinary public_idのみ記入する）
-- コンパイル盤に個人名アーティストを設定すること
+- コンパイル盤に個人名アーティストを設定すること（必ず `"V.A."` を使用）
+- `artist` に `"Various Artists"` を使用すること（`"V.A."` に統一）
 
 ### ✅ 必ず守ること
 
-- **コンパイル盤:** `artist: "Various Artists"`
+- **コンパイル盤:** `artist: "V.A."`
 - **サウンドトラック:** `artist: "O.S.T."`
 - **artist_sortパターン:** 表示名とソート/フィルタ名を分けたい場合のみ `artist_sort` を追加。`getSortName()` は `artist_sort || artist` で動作する
 - **year確認:** 新規追加時は MusicBrainz で原盤リリース年を確認する
@@ -91,6 +100,45 @@ const COLLECTION_DATA = {
 ```
 
 `getSortName()` のすべての呼び出し箇所（17箇所）が `artist_sort || artist` パターンに対応済み。
+
+---
+
+## カテゴリボタン仕様
+
+index.html のフィルタボタンに以下の特殊カテゴリがある：
+
+| ボタンラベル | value | 表示条件 |
+|------------|-------|---------|
+| V.A. | `compilation` | `artist === "V.A."` |
+| O.S.T. | `soundtrack` | `artist === "O.S.T."` |
+| R&B | `r&b` | `genre === "r&b"` |
+| Soul & Jazz | `souljazz` | `genre === "souljazz"` |
+
+`r&b` と `souljazz` のエントリはアルファベット・数字・年代フィルタから除外される。
+
+---
+
+## extract_tracklist() 仕様
+
+`process_inbox.py` の `extract_tracklist()` が返すトラックリスト配列の形式：
+
+- 各要素は `"1. Track Name"` 形式（番号 + ピリオド + スペース + タイトル）
+- 複数ディスクがある場合、ディスク区切りを配列に挿入する
+  - 例: `"[BONUS CD]"` / `"[DISC 2: BONUS DISC]"` など
+  - 区切り行自体に番号はつけない
+  - 各ディスクのトラック番号は1番から採番する
+- ローマ数字の曲番号は算用数字に変換する
+- 画像に記載されている情報のみ抽出（学習データ・推測で補完しない）
+
+---
+
+## Discogs 検索仕様
+
+新規エントリ追加時の原盤年確認に使用：
+
+- **通常アーティスト:** アーティスト名 + アルバム名で検索
+- **V.A.（コンパイル盤）:** アルバム名のみで検索
+- **O.S.T.（サウンドトラック）:** アルバム名のみで検索
 
 ---
 
