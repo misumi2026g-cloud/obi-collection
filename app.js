@@ -243,7 +243,8 @@ function prepareAlbums() {
         album._albumKey = album.album.toLowerCase();
         album._year = firstVersion.year || 9999;
         album._yearJP = firstVersion.yearJP || 9999;
-        album._searchText = `${album.artist} ${album.album}`.toLowerCase();
+        const tracklistText = (album.tracklist || []).join(' ');
+        album._searchText = `${album.artist} ${album.album} ${tracklistText}`.toLowerCase();
         albumById.set(album.id, album);
     });
 }
